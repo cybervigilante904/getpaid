@@ -77,7 +77,7 @@ def home():
             content="width=device-width, initial-scale=1.0"
         >
 
-        <title>85Spy Tick // Control Terminal</title>
+        <title>85Spy Trick // Control Terminal</title>
 
         <style>
             * {
