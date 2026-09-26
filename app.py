@@ -68,9 +68,378 @@ def session_exists(session_id):
 @app.route("/")
 def home():
     return """
-    <h1>LiveHook</h1>
-    <p>Consent-based live location sharing.</p>
-    <p>Use POST /api/sessions to create a tracking session.</p>
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <title>85Spy Trick</title>
+
+        <style>
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                min-height: 100vh;
+                font-family: Arial, sans-serif;
+                background:
+                    radial-gradient(
+                        circle at top left,
+                        #172554,
+                        transparent 40%
+                    ),
+                    radial-gradient(
+                        circle at bottom right,
+                        #0f766e,
+                        transparent 35%
+                    ),
+                    #050816;
+                color: white;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 30px;
+            }
+
+            .container {
+                width: 100%;
+                max-width: 900px;
+            }
+
+            nav {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 80px;
+            }
+
+            .logo {
+                font-size: 24px;
+                font-weight: 800;
+                letter-spacing: -1px;
+            }
+
+            .logo span {
+                color: #38bdf8;
+            }
+
+            .status {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                color: #94a3b8;
+                font-size: 14px;
+            }
+
+            .dot {
+                width: 8px;
+                height: 8px;
+                background: #22c55e;
+                border-radius: 50%;
+                box-shadow: 0 0 12px #22c55e;
+            }
+
+            .hero {
+                text-align: center;
+            }
+
+            .badge {
+                display: inline-block;
+                padding: 8px 14px;
+                border: 1px solid rgba(56, 189, 248, 0.25);
+                background: rgba(56, 189, 248, 0.08);
+                border-radius: 999px;
+                color: #7dd3fc;
+                font-size: 13px;
+                margin-bottom: 24px;
+            }
+
+            h1 {
+                font-size: clamp(48px, 8vw, 86px);
+                line-height: 0.95;
+                letter-spacing: -5px;
+                margin-bottom: 25px;
+            }
+
+            h1 span {
+                color: #38bdf8;
+            }
+
+            .subtitle {
+                max-width: 600px;
+                margin: 0 auto;
+                color: #94a3b8;
+                font-size: 18px;
+                line-height: 1.7;
+            }
+
+            .action {
+                margin-top: 45px;
+            }
+
+            button {
+                border: none;
+                padding: 17px 30px;
+                border-radius: 14px;
+                background: #38bdf8;
+                color: #03111c;
+                font-size: 16px;
+                font-weight: 700;
+                cursor: pointer;
+                transition: 0.2s ease;
+                box-shadow: 0 10px 35px rgba(56, 189, 248, 0.25);
+            }
+
+            button:hover {
+                transform: translateY(-2px);
+                background: #7dd3fc;
+                box-shadow: 0 15px 40px rgba(56, 189, 248, 0.35);
+            }
+
+            button:disabled {
+                opacity: 0.6;
+                cursor: not-allowed;
+                transform: none;
+            }
+
+            #result {
+                display: none;
+                margin: 50px auto 0;
+                max-width: 650px;
+                padding: 30px;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                background: rgba(15, 23, 42, 0.7);
+                backdrop-filter: blur(20px);
+                border-radius: 22px;
+                text-align: left;
+            }
+
+            #result h2 {
+                margin-bottom: 20px;
+            }
+
+            .link-box {
+                margin-top: 18px;
+                padding: 16px;
+                border-radius: 12px;
+                background: rgba(255, 255, 255, 0.05);
+            }
+
+            .link-label {
+                display: block;
+                color: #64748b;
+                font-size: 12px;
+                margin-bottom: 8px;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+            }
+
+            a {
+                color: #7dd3fc;
+                text-decoration: none;
+                word-break: break-all;
+            }
+
+            a:hover {
+                text-decoration: underline;
+            }
+
+            footer {
+                margin-top: 70px;
+                text-align: center;
+                color: #475569;
+                font-size: 13px;
+            }
+
+            @media (max-width: 600px) {
+                body {
+                    padding: 20px;
+                }
+
+                nav {
+                    margin-bottom: 60px;
+                }
+
+                h1 {
+                    letter-spacing: -3px;
+                }
+
+                .subtitle {
+                    font-size: 16px;
+                }
+
+                #result {
+                    padding: 22px;
+                }
+            }
+        </style>
+    </head>
+
+    <body>
+
+        <main class="container">
+
+            <nav>
+                <div class="logo">
+                    85<span>Spy Trick</span>
+                </div>
+
+                <div class="status">
+                    <span class="dot"></span>
+                    System Online
+                </div>
+            </nav>
+
+            <section class="hero">
+
+                <div class="badge">
+                    CONSENT-BASED LOCATION TRACKER
+                </div>
+
+                <h1>
+                    Access location.<br>
+                    <span>Live.</span>
+                </h1>
+
+                <p class="subtitle">
+                    Create a secure session and trick someone to share their live location with you.
+                </p>
+
+                <div class="action">
+                    <button id="createButton">
+                        Create Location Session
+                    </button>
+                </div>
+
+                <div id="result">
+
+                    <h2>Session Ready</h2>
+
+                    <div class="link-box">
+
+                        <span class="link-label">
+                            Share link now
+                        </span>
+
+                        <a
+                            id="shareLink"
+                            target="_blank">
+                        </a>
+
+                    </div>
+
+                    <div class="link-box">
+
+                        <span class="link-label">
+                            Dashboard
+                        </span>
+
+                        <a
+                            id="dashboardLink"
+                            target="_blank">
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+            <footer>
+                85Spy Trick · Location live tracking with consent
+            </footer>
+
+        </main>
+
+        <script>
+            const createButton =
+                document.getElementById("createButton");
+
+            const result =
+                document.getElementById("result");
+
+            const shareLink =
+                document.getElementById("shareLink");
+
+            const dashboardLink =
+                document.getElementById("dashboardLink");
+
+            createButton.addEventListener(
+                "click",
+                async () => {
+
+                    createButton.disabled = true;
+
+                    createButton.textContent =
+                        "Creating Session...";
+
+                    try {
+
+                        const response =
+                            await fetch(
+                                "/api/sessions",
+                                {
+                                    method: "POST"
+                                }
+                            );
+
+                        const data =
+                            await response.json();
+
+                        if (!response.ok) {
+                            throw new Error(
+                                "Session creation failed"
+                            );
+                        }
+
+                        const baseUrl =
+                            window.location.origin;
+
+                        const shareUrl =
+                            baseUrl + data.share_url;
+
+                        const dashboardUrl =
+                            baseUrl + data.dashboard_url;
+
+                        shareLink.href =
+                            shareUrl;
+
+                        shareLink.textContent =
+                            shareUrl;
+
+                        dashboardLink.href =
+                            dashboardUrl;
+
+                        dashboardLink.textContent =
+                            dashboardUrl;
+
+                        result.style.display =
+                            "block";
+
+                    } catch (error) {
+
+                        alert(
+                            "Unable to create session."
+                        );
+
+                    } finally {
+
+                        createButton.disabled =
+                            false;
+
+                        createButton.textContent =
+                            "Create Location Session";
+                    }
+                }
+            );
+        </script>
+
+    </body>
+    </html>
     """
 
 
@@ -240,3 +609,6 @@ def get_location(session_id):
 
 
 initialize_database()
+
+if __name__ == "__main__":
+    app.run(debug=True)

