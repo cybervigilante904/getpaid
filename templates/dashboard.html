@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>TraceLink Dashboard</title>
+
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    >
+
+    <style>
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        header {
+            padding: 15px;
+            background: #111;
+            color: white;
+        }
+
+        #map {
+            height: calc(100vh - 70px);
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <header>
+
+        <h2>TraceLink Dashboard</h2>
+
+        <div id="status">
+            Waiting for location...
+        </div>
+
+    </header>
+
+
+    <div id="map"></div>
+
+
+    <script
+        src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
+    </script>
+
+
+    <script>
+
+        const sessionId = "{{ session_id }}";
+
+
+        const map = L.map("map").setView(
+            [0, 0],
+            2
+        );
+
+
+        L.tileLayer(
+            "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+            {
+                maxZoom: 19,
+                attribution: "&copy; OpenStreetMap contributors"
+            }
+        ).addTo(map);
+
+
+        let marker = null;
+
+
+        async function updateLocation() {
+
+            try {
+
+                const response = await fetch(
+                    `/api/location/${sessionId}`
+                );
+
+
+                const data = await response.json();
+
+
+                if (!data.location) {
+
+                    document.getElementById("status")
+                        .textContent =
+                        "Waiting for location...";
+
+                    return;
+                }
+
+
+                const latitude =
+                    data.location.latitude;
+
+                const longitude =
+                    data.location.longitude;
+
+                const accuracy =
+                    data.location.accuracy;
+
+
+                const coordinates = [
+                    latitude,
+                    longitude
+                ];
+
+
+                if (!marker) {
+
+                    marker = L.marker(
+                        coordinates
+                    ).addTo(map);
+
+                    map.setView(
+                        coordinates,
+                        16
+                    );
+
+                } else {
+
+                    marker.setLatLng(
+                        coordinates
+                    );
+
+                }
+
+
+                marker.bindPopup(
+                    `
+                    <strong>Live Location</strong><br>
+                    Latitude: ${latitude.toFixed(6)}<br>
+                    Longitude: ${longitude.toFixed(6)}<br>
+                    Accuracy: ${accuracy
+                        ? accuracy.toFixed(1) + " m"
+                        : "Unknown"}
+                    `
+                );
+
+
+                document.getElementById("status")
+                    .textContent =
+                    "Location updated.";
+
+            } catch (error) {
+
+                document.getElementById("status")
+                    .textContent =
+                    "Unable to retrieve location.";
+
+            }
+
+        }
+
+
+        updateLocation();
+
+
+        setInterval(
+            updateLocation,
+            2000
+        );
+
+    </script>
+
+</body>
+</html>
