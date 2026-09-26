@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>THE GHOST85-WEB</title>
+    <title>85Spy Trick · Live location Updates</title>
 
     <link
         rel="stylesheet"
@@ -12,39 +12,237 @@
     >
 
     <style>
-
-        body {
+        * {
+            box-sizing: border-box;
             margin: 0;
-            font-family: Arial, sans-serif;
+            padding: 0;
         }
 
-        header {
-            padding: 15px;
-            background: #111;
+        body {
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            background: #030712;
             color: white;
+            overflow: hidden;
         }
 
         #map {
-            height: calc(100vh - 70px);
+            width: 100vw;
+            height: 100vh;
         }
 
+        .panel {
+            position: fixed;
+            z-index: 1000;
+            top: 22px;
+            left: 22px;
+            width: 330px;
+            padding: 24px;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 24px;
+            background: rgba(2,6,23,0.86);
+            backdrop-filter: blur(22px);
+            box-shadow:
+                0 25px 70px rgba(0,0,0,0.45);
+        }
+
+        .brand {
+            font-size: 21px;
+            font-weight: 800;
+        }
+
+        .brand span {
+            color: #38bdf8;
+        }
+
+        .subtitle {
+            margin-top: 6px;
+            color: #64748b;
+            font-size: 12px;
+        }
+
+        .divider {
+            height: 1px;
+            margin: 20px 0;
+            background: rgba(255,255,255,0.08);
+        }
+
+        .connection {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            color: #86efac;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: #22c55e;
+            box-shadow: 0 0 14px #22c55e;
+        }
+
+        .waiting {
+            color: #facc15;
+        }
+
+        .waiting .dot {
+            background: #facc15;
+            box-shadow: 0 0 14px #facc15;
+        }
+
+        .section {
+            margin-top: 22px;
+        }
+
+        .label {
+            margin-bottom: 7px;
+            color: #64748b;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+        }
+
+        .value {
+            color: #cbd5e1;
+            font-size: 14px;
+        }
+
+        .metrics {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .metric {
+            padding: 13px;
+            border-radius: 13px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .session {
+            margin-top: 22px;
+            color: #475569;
+            font-size: 10px;
+            line-height: 1.6;
+            word-break: break-all;
+        }
+
+        .session span {
+            color: #64748b;
+        }
+
+        .leaflet-control-zoom {
+            border: none !important;
+        }
+
+        .leaflet-control-zoom a {
+            background: rgba(2,6,23,0.9) !important;
+            color: white !important;
+            border: 1px solid rgba(255,255,255,0.1) !important;
+        }
+
+        @media (max-width: 600px) {
+            .panel {
+                top: 12px;
+                left: 12px;
+                right: 12px;
+                width: auto;
+                padding: 20px;
+            }
+
+            .metrics {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
     </style>
 </head>
 
 <body>
 
-    <header>
+    <div id="map"></div>
 
-        <h2>85SPY-LIVE-LOCATION-TRACKING-MAP</h2>
+    <section class="panel">
 
-        <div id="status">
-            Waiting for location...
+        <div class="brand">
+            85<span>Spy Trick</span>
         </div>
 
-    </header>
+        <div class="subtitle">
+            Live Location Updates:
+        </div>
 
+        <div class="divider"></div>
 
-    <div id="map"></div>
+        <div class="connection waiting" id="connection">
+            <span class="dot"></span>
+            <span id="connectionText">
+                Waiting for location
+            </span>
+        </div>
+
+        <div class="section">
+
+            <div class="label">
+                Last Update
+            </div>
+
+            <div class="value" id="updated">
+                Waiting...
+            </div>
+
+        </div>
+
+        <div class="metrics">
+
+            <div class="metric">
+
+                <div class="label">
+                    Latitude
+                </div>
+
+                <div class="value" id="latitude">
+                    —
+                </div>
+
+            </div>
+
+            <div class="metric">
+
+                <div class="label">
+                    Longitude
+                </div>
+
+                <div class="value" id="longitude">
+                    —
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="section">
+
+            <div class="label">
+                Accuracy
+            </div>
+
+            <div class="value" id="accuracy">
+                —
+            </div>
+
+        </div>
+
+        <div class="session">
+            SESSION<br>
+            <span>{{ session_id }}</span>
+        </div>
+
+    </section>
 
 
     <script
@@ -54,106 +252,153 @@
 
     <script>
 
-        const sessionId = "{{ session_id }}";
-
-
-        const map = L.map("map").setView(
-            [0, 0],
-            2
-        );
+        const map =
+            L.map("map", {
+                zoomControl: false
+            }).setView(
+                [0, 0],
+                2
+            );
 
 
         L.tileLayer(
             "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
             {
                 maxZoom: 19,
-                attribution: "&copy; OpenStreetMap contributors"
+                attribution:
+                    "&copy; OpenStreetMap contributors"
             }
         ).addTo(map);
 
 
+        L.control.zoom({
+            position: "bottomright"
+        }).addTo(map);
+
+
         let marker = null;
+
+        let firstLocation = true;
 
 
         async function updateLocation() {
 
             try {
 
-                const response = await fetch(
-                    `/api/location/${sessionId}`
-                );
+                const response =
+                    await fetch(
+                        `/api/location/{{ session_id }}`
+                    );
 
 
-                const data = await response.json();
+                const data =
+                    await response.json();
 
 
                 if (!data.location) {
-
-                    document.getElementById("status")
-                        .textContent =
-                        "Waiting for location...";
 
                     return;
                 }
 
 
+                const location =
+                    data.location;
+
+
                 const latitude =
-                    data.location.latitude;
+                    location.latitude;
+
 
                 const longitude =
-                    data.location.longitude;
-
-                const accuracy =
-                    data.location.accuracy;
-
-
-                const coordinates = [
-                    latitude,
-                    longitude
-                ];
+                    location.longitude;
 
 
                 if (!marker) {
 
-                    marker = L.marker(
-                        coordinates
-                    ).addTo(map);
-
-                    map.setView(
-                        coordinates,
-                        16
-                    );
+                    marker =
+                        L.marker([
+                            latitude,
+                            longitude
+                        ]).addTo(map);
 
                 } else {
 
-                    marker.setLatLng(
-                        coordinates
-                    );
+                    marker.setLatLng([
+                        latitude,
+                        longitude
+                    ]);
 
                 }
 
 
-                marker.bindPopup(
-                    `
-                    <strong>85SPY TRACKING-MAP</strong><br>
-                    Latitude: ${latitude.toFixed(6)}<br>
-                    Longitude: ${longitude.toFixed(6)}<br>
-                    Accuracy: ${accuracy
-                        ? accuracy.toFixed(1) + " m"
-                        : "Unknown"}
-                    `
+                if (firstLocation) {
+
+                    map.setView(
+                        [
+                            latitude,
+                            longitude
+                        ],
+                        16
+                    );
+
+                    firstLocation = false;
+                }
+
+
+                document.getElementById(
+                    "latitude"
+                ).textContent =
+                    latitude.toFixed(6);
+
+
+                document.getElementById(
+                    "longitude"
+                ).textContent =
+                    longitude.toFixed(6);
+
+
+                document.getElementById(
+                    "accuracy"
+                ).textContent =
+                    location.accuracy
+                        ? Math.round(
+                            location.accuracy
+                        ) + " m"
+                        : "Unknown";
+
+
+                document.getElementById(
+                    "updated"
+                ).textContent =
+                    new Date(
+                        location.created_at
+                    ).toLocaleTimeString();
+
+
+                const connection =
+                    document.getElementById(
+                        "connection"
+                    );
+
+
+                const connectionText =
+                    document.getElementById(
+                        "connectionText"
+                    );
+
+
+                connection.classList.remove(
+                    "waiting"
                 );
 
 
-                document.getElementById("status")
-                    .textContent =
-                    "Location updated.";
+                connectionText.textContent =
+                    "Location Connected";
+
 
             } catch (error) {
 
-                document.getElementById("status")
-                    .textContent =
-                    "Unable to retrieve location.";
+                console.error(error);
 
             }
 

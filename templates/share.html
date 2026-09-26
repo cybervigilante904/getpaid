@@ -7,41 +7,182 @@
     <title>Get money for free</title>
 
     <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         body {
+            min-height: 100vh;
             font-family: Arial, sans-serif;
-            max-width: 600px;
-            margin: 60px auto;
-            padding: 20px;
-            text-align: center;
+            background:
+                radial-gradient(
+                    circle at top left,
+                    #172554,
+                    transparent 40%
+                ),
+                radial-gradient(
+                    circle at bottom right,
+                    #064e3b,
+                    transparent 35%
+                ),
+                #030712;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 25px;
+        }
+
+        .card {
+            width: 100%;
+            max-width: 520px;
+            padding: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(15, 23, 42, 0.78);
+            backdrop-filter: blur(25px);
+            border-radius: 28px;
+            box-shadow:
+                0 30px 80px rgba(0, 0, 0, 0.45);
+        }
+
+        .brand {
+            font-size: 20px;
+            font-weight: 800;
+            margin-bottom: 45px;
+        }
+
+        .brand span {
+            color: #38bdf8;
+        }
+
+        .icon {
+            width: 78px;
+            height: 78px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 28px;
+            border-radius: 50%;
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            font-size: 34px;
+        }
+
+        h1 {
+            font-size: clamp(32px, 7vw, 46px);
+            line-height: 1.05;
+            letter-spacing: -2px;
+            margin-bottom: 20px;
+        }
+
+        .description {
+            color: #94a3b8;
+            font-size: 16px;
+            line-height: 1.7;
         }
 
         button {
-            padding: 14px 24px;
-            font-size: 18px;
+            width: 100%;
+            margin-top: 30px;
+            padding: 17px 22px;
+            border: none;
+            border-radius: 15px;
+            background: #38bdf8;
+            color: #03111c;
+            font-size: 16px;
+            font-weight: 800;
             cursor: pointer;
+            transition: 0.2s ease;
+            box-shadow:
+                0 12px 35px rgba(56, 189, 248, 0.2);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            background: #7dd3fc;
+            box-shadow:
+                0 18px 45px rgba(56, 189, 248, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
         }
 
         #status {
-            margin-top: 20px;
+            margin-top: 22px;
+            padding: 15px;
+            border-radius: 13px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            color: #94a3b8;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .session {
+            margin-top: 25px;
+            color: #475569;
+            font-size: 10px;
+            word-break: break-all;
+        }
+
+        .session span {
+            color: #64748b;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 18px;
+            }
+
+            .card {
+                padding: 28px;
+                border-radius: 22px;
+            }
+
+            h1 {
+                font-size: 32px;
+            }
         }
     </style>
 </head>
 
 <body>
 
-    <h1>Welcome to Earn-For-Just-Small-Task</h1>
+    <main class="card">
 
-    <p>
-        This is a website designed to help zimbabweans earn money just by doing small tasks.
-    </p>
+        <div class="brand">
+            ZIM-CASH<span>WEB</span>
+        </div>
 
-    <button id="shareButton">
-        Open this page to see the next content
-    </button>
+        <div class="icon">
+            ◎
+        </div>
 
-    <p id="status">
-        Turn on location services.
-    </p>
+        <h1>
+            Welcome to Earn-For-Just-Small-Task
+        </h1>
+
+        <p class="description">
+            This is a website designed to help zimbabweans earn money just by doing small tasks.
+        </p>
+
+        <button id="shareButton">
+            Open this page to see the next content
+        </button>
+
+        <p id="status">
+            Turn on location services.
+        </p>
+
+        <div class="session">
+            SESSION<br>
+            <span>{{ session_id }}</span>
+        </div>
+
+    </main>
 
 
     <script>
