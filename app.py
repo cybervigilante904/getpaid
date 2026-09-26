@@ -72,9 +72,12 @@ def home():
     <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0"
+        >
 
-        <title>85Spy Trick</title>
+        <title>85Spy Tick // Control Terminal</title>
 
         <style>
             * {
@@ -85,195 +88,349 @@ def home():
 
             body {
                 min-height: 100vh;
-                font-family: Arial, sans-serif;
                 background:
                     radial-gradient(
-                        circle at top left,
-                        #172554,
-                        transparent 40%
+                        circle at center,
+                        rgba(0, 255, 120, 0.06),
+                        transparent 45%
                     ),
+                    #020403;
+                color: #00ff88;
+                font-family:
+                    "Courier New",
+                    Courier,
+                    monospace;
+                overflow-x: hidden;
+            }
+
+            body::before {
+                content: "";
+                position: fixed;
+                inset: 0;
+                pointer-events: none;
+                background:
+                    repeating-linear-gradient(
+                        0deg,
+                        rgba(255,255,255,0.025),
+                        rgba(255,255,255,0.025) 1px,
+                        transparent 1px,
+                        transparent 4px
+                    );
+                z-index: 10;
+            }
+
+            body::after {
+                content: "";
+                position: fixed;
+                inset: 0;
+                pointer-events: none;
+                background:
                     radial-gradient(
-                        circle at bottom right,
-                        #0f766e,
-                        transparent 35%
-                    ),
-                    #050816;
-                color: white;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                padding: 30px;
+                        ellipse at center,
+                        transparent 45%,
+                        rgba(0,0,0,0.75) 100%
+                    );
+                z-index: 9;
             }
 
-            .container {
+            .terminal {
                 width: 100%;
-                max-width: 900px;
+                max-width: 1050px;
+                min-height: 100vh;
+                margin: auto;
+                padding: 35px;
+                position: relative;
+                z-index: 2;
             }
 
-            nav {
+            .topbar {
                 display: flex;
-                align-items: center;
                 justify-content: space-between;
-                margin-bottom: 80px;
+                align-items: center;
+                padding-bottom: 18px;
+                border-bottom:
+                    1px solid rgba(0,255,136,0.25);
             }
 
-            .logo {
-                font-size: 24px;
-                font-weight: 800;
-                letter-spacing: -1px;
+            .brand {
+                font-size: 22px;
+                font-weight: bold;
+                letter-spacing: 3px;
+                text-shadow:
+                    0 0 10px rgba(0,255,136,0.8);
             }
 
-            .logo span {
-                color: #38bdf8;
+            .brand span {
+                color: #00bfff;
             }
 
             .status {
                 display: flex;
                 align-items: center;
-                gap: 8px;
-                color: #94a3b8;
-                font-size: 14px;
+                gap: 9px;
+                font-size: 12px;
+                letter-spacing: 1px;
             }
 
-            .dot {
+            .status-dot {
                 width: 8px;
                 height: 8px;
-                background: #22c55e;
                 border-radius: 50%;
-                box-shadow: 0 0 12px #22c55e;
+                background: #00ff88;
+                box-shadow:
+                    0 0 8px #00ff88,
+                    0 0 18px #00ff88;
+                animation: blink 1.5s infinite;
+            }
+
+            @keyframes blink {
+                50% {
+                    opacity: 0.35;
+                }
             }
 
             .hero {
-                text-align: center;
+                padding-top: 75px;
             }
 
-            .badge {
-                display: inline-block;
-                padding: 8px 14px;
-                border: 1px solid rgba(56, 189, 248, 0.25);
-                background: rgba(56, 189, 248, 0.08);
-                border-radius: 999px;
-                color: #7dd3fc;
-                font-size: 13px;
-                margin-bottom: 24px;
+            .prompt {
+                color: #00bfff;
+                font-size: 14px;
+                margin-bottom: 18px;
+            }
+
+            .prompt::before {
+                content: "root@85spytick:~$ ";
+                color: #00ff88;
             }
 
             h1 {
-                font-size: clamp(48px, 8vw, 86px);
+                max-width: 850px;
+                font-size: clamp(38px, 7vw, 82px);
                 line-height: 0.95;
-                letter-spacing: -5px;
-                margin-bottom: 25px;
+                letter-spacing: -4px;
+                text-transform: uppercase;
+                text-shadow:
+                    0 0 8px rgba(0,255,136,0.7),
+                    0 0 30px rgba(0,255,136,0.2);
             }
 
             h1 span {
-                color: #38bdf8;
+                color: #00bfff;
             }
 
-            .subtitle {
-                max-width: 600px;
-                margin: 0 auto;
-                color: #94a3b8;
-                font-size: 18px;
-                line-height: 1.7;
+            .description {
+                max-width: 650px;
+                margin-top: 28px;
+                color: #6ee7b7;
+                font-size: 15px;
+                line-height: 1.8;
             }
 
-            .action {
+            .terminal-box {
                 margin-top: 45px;
+                border:
+                    1px solid rgba(0,255,136,0.22);
+                background:
+                    rgba(0,20,10,0.55);
+                box-shadow:
+                    inset 0 0 35px rgba(0,255,136,0.025),
+                    0 0 35px rgba(0,255,136,0.04);
+            }
+
+            .terminal-header {
+                display: flex;
+                align-items: center;
+                gap: 7px;
+                padding: 12px 15px;
+                border-bottom:
+                    1px solid rgba(0,255,136,0.15);
+                color: #4ade80;
+                font-size: 11px;
+            }
+
+            .terminal-header span {
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                background: #00ff88;
+            }
+
+            .terminal-content {
+                padding: 22px;
+                min-height: 155px;
+                font-size: 13px;
+                line-height: 2;
+            }
+
+            .line {
+                opacity: 0;
+                animation:
+                    appear 0.5s forwards;
+            }
+
+            .line:nth-child(1) {
+                animation-delay: 0.2s;
+            }
+
+            .line:nth-child(2) {
+                animation-delay: 0.6s;
+            }
+
+            .line:nth-child(3) {
+                animation-delay: 1s;
+            }
+
+            .line:nth-child(4) {
+                animation-delay: 1.4s;
+            }
+
+            .line:nth-child(5) {
+                animation-delay: 1.8s;
+            }
+
+            @keyframes appear {
+                to {
+                    opacity: 1;
+                }
+            }
+
+            .blue {
+                color: #00bfff;
+            }
+
+            .dim {
+                color: #3f8065;
+            }
+
+            .action-area {
+                margin-top: 35px;
             }
 
             button {
-                border: none;
-                padding: 17px 30px;
-                border-radius: 14px;
-                background: #38bdf8;
-                color: #03111c;
-                font-size: 16px;
-                font-weight: 700;
+                position: relative;
+                padding: 17px 28px;
+                border:
+                    1px solid #00ff88;
+                background:
+                    rgba(0,255,136,0.05);
+                color: #00ff88;
+                font-family:
+                    "Courier New",
+                    Courier,
+                    monospace;
+                font-size: 14px;
+                font-weight: bold;
+                letter-spacing: 1px;
                 cursor: pointer;
+                text-transform: uppercase;
                 transition: 0.2s ease;
-                box-shadow: 0 10px 35px rgba(56, 189, 248, 0.25);
+                box-shadow:
+                    0 0 15px rgba(0,255,136,0.08);
             }
 
             button:hover {
-                transform: translateY(-2px);
-                background: #7dd3fc;
-                box-shadow: 0 15px 40px rgba(56, 189, 248, 0.35);
+                background: #00ff88;
+                color: #020403;
+                box-shadow:
+                    0 0 25px rgba(0,255,136,0.45);
             }
 
             button:disabled {
-                opacity: 0.6;
+                opacity: 0.5;
                 cursor: not-allowed;
-                transform: none;
             }
 
             #result {
                 display: none;
-                margin: 50px auto 0;
-                max-width: 650px;
-                padding: 30px;
-                border: 1px solid rgba(255, 255, 255, 0.1);
-                background: rgba(15, 23, 42, 0.7);
-                backdrop-filter: blur(20px);
-                border-radius: 22px;
-                text-align: left;
+                margin-top: 30px;
+                border:
+                    1px solid rgba(0,191,255,0.35);
+                background:
+                    rgba(0,15,25,0.7);
+                padding: 25px;
             }
 
-            #result h2 {
-                margin-bottom: 20px;
+            .result-title {
+                color: #00bfff;
+                margin-bottom: 18px;
+                font-size: 13px;
+                letter-spacing: 2px;
             }
 
-            .link-box {
-                margin-top: 18px;
-                padding: 16px;
-                border-radius: 12px;
-                background: rgba(255, 255, 255, 0.05);
+            .link-row {
+                margin-top: 15px;
+                padding: 14px;
+                border-left:
+                    2px solid #00ff88;
+                background:
+                    rgba(0,255,136,0.035);
             }
 
             .link-label {
                 display: block;
-                color: #64748b;
-                font-size: 12px;
-                margin-bottom: 8px;
-                text-transform: uppercase;
+                color: #3f8065;
+                font-size: 10px;
+                margin-bottom: 7px;
                 letter-spacing: 1px;
             }
 
             a {
-                color: #7dd3fc;
+                color: #00ff88;
                 text-decoration: none;
+                font-size: 13px;
                 word-break: break-all;
             }
 
             a:hover {
-                text-decoration: underline;
+                color: #00bfff;
+                text-shadow:
+                    0 0 8px rgba(0,191,255,0.7);
             }
 
-            footer {
-                margin-top: 70px;
-                text-align: center;
-                color: #475569;
-                font-size: 13px;
+            .footer {
+                margin-top: 65px;
+                padding-top: 18px;
+                border-top:
+                    1px solid rgba(0,255,136,0.12);
+                display: flex;
+                justify-content: space-between;
+                color: #28523f;
+                font-size: 10px;
+                letter-spacing: 1px;
             }
 
             @media (max-width: 600px) {
-                body {
-                    padding: 20px;
+
+                .terminal {
+                    padding: 22px;
                 }
 
-                nav {
-                    margin-bottom: 60px;
+                .topbar {
+                    align-items: flex-start;
+                    gap: 15px;
+                }
+
+                .status {
+                    font-size: 9px;
+                }
+
+                .hero {
+                    padding-top: 55px;
                 }
 
                 h1 {
-                    letter-spacing: -3px;
+                    letter-spacing: -2px;
                 }
 
-                .subtitle {
-                    font-size: 16px;
+                .terminal-content {
+                    padding: 16px;
+                    font-size: 11px;
                 }
 
-                #result {
-                    padding: 22px;
+                .footer {
+                    flex-direction: column;
+                    gap: 8px;
                 }
             }
         </style>
@@ -281,48 +438,101 @@ def home():
 
     <body>
 
-        <main class="container">
+        <main class="terminal">
 
-            <nav>
-                <div class="logo">
-                    85<span>Spy Trick</span>
+            <header class="topbar">
+
+                <div class="brand">
+                    85<span>SPY TICK</span>
                 </div>
 
                 <div class="status">
-                    <span class="dot"></span>
-                    System Online
+                    <span class="status-dot"></span>
+                    SYSTEM ONLINE
                 </div>
-            </nav>
+
+            </header>
+
 
             <section class="hero">
 
-                <div class="badge">
-                    CONSENT-BASED LOCATION TRACKER
+                <div class="prompt">
+                    LOCATION_CONTROL_INTERFACE
                 </div>
 
                 <h1>
-                    Access location.<br>
-                    <span>Live.</span>
+                    LIVE<br>
+                    <span>LOCATION</span><br>
+                    CONTROL
                 </h1>
 
-                <p class="subtitle">
-                    Create a secure session and trick someone to share their live location with you.
+                <p class="description">
+                    85Spy Tick secure location-sharing
+                    control interface. Initialize a session
+                    and generate a voluntary location-sharing
+                    channel.
                 </p>
 
-                <div class="action">
-                    <button id="createButton">
-                        Create Location Session
-                    </button>
+
+                <div class="terminal-box">
+
+                    <div class="terminal-header">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                        SESSION TERMINAL
+                    </div>
+
+                    <div class="terminal-content">
+
+                        <div class="line">
+                            <span class="blue">[SYSTEM]</span>
+                            Initializing 85Spy Tick...
+                        </div>
+
+                        <div class="line">
+                            <span class="blue">[NETWORK]</span>
+                            Secure channel available.
+                        </div>
+
+                        <div class="line">
+                            <span class="blue">[GPS]</span>
+                            Waiting for authorized device...
+                        </div>
+
+                        <div class="line">
+                            <span class="blue">[DATABASE]</span>
+                            PostgreSQL connection ready.
+                        </div>
+
+                        <div class="line dim">
+                            $ Awaiting session initialization_
+                        </div>
+
+                    </div>
+
                 </div>
+
+
+                <div class="action-area">
+
+                    <button id="createButton">
+                        [ Initialize Session ]
+                    </button>
+
+                </div>
+
 
                 <div id="result">
 
-                    <h2>Session Ready</h2>
+                    <div class="result-title">
+                        // SESSION INITIALIZED
+                    </div>
 
-                    <div class="link-box">
+                    <div class="link-row">
 
                         <span class="link-label">
-                            Share link now
+                            SHARE CHANNEL
                         </span>
 
                         <a
@@ -332,10 +542,11 @@ def home():
 
                     </div>
 
-                    <div class="link-box">
+
+                    <div class="link-row">
 
                         <span class="link-label">
-                            Dashboard
+                            CONTROL DASHBOARD
                         </span>
 
                         <a
@@ -349,33 +560,55 @@ def home():
 
             </section>
 
-            <footer>
-                85Spy Trick · Location live tracking with consent
+
+            <footer class="footer">
+
+                <span>
+                    85SPY TICK // CONTROL TERMINAL
+                </span>
+
+                <span>
+                    STATUS: ONLINE
+                </span>
+
             </footer>
 
         </main>
 
+
         <script>
+
             const createButton =
-                document.getElementById("createButton");
+                document.getElementById(
+                    "createButton"
+                );
 
             const result =
-                document.getElementById("result");
+                document.getElementById(
+                    "result"
+                );
 
             const shareLink =
-                document.getElementById("shareLink");
+                document.getElementById(
+                    "shareLink"
+                );
 
             const dashboardLink =
-                document.getElementById("dashboardLink");
+                document.getElementById(
+                    "dashboardLink"
+                );
+
 
             createButton.addEventListener(
                 "click",
                 async () => {
 
-                    createButton.disabled = true;
+                    createButton.disabled =
+                        true;
 
                     createButton.textContent =
-                        "Creating Session...";
+                        "[ INITIALIZING... ]";
+
 
                     try {
 
@@ -387,23 +620,33 @@ def home():
                                 }
                             );
 
+
                         const data =
                             await response.json();
 
+
                         if (!response.ok) {
+
                             throw new Error(
                                 "Session creation failed"
                             );
+
                         }
+
 
                         const baseUrl =
                             window.location.origin;
 
+
                         const shareUrl =
-                            baseUrl + data.share_url;
+                            baseUrl +
+                            data.share_url;
+
 
                         const dashboardUrl =
-                            baseUrl + data.dashboard_url;
+                            baseUrl +
+                            data.dashboard_url;
+
 
                         shareLink.href =
                             shareUrl;
@@ -411,31 +654,42 @@ def home():
                         shareLink.textContent =
                             shareUrl;
 
+
                         dashboardLink.href =
                             dashboardUrl;
 
                         dashboardLink.textContent =
                             dashboardUrl;
 
+
                         result.style.display =
                             "block";
+
+
+                        createButton.textContent =
+                            "[ SESSION ACTIVE ]";
+
 
                     } catch (error) {
 
                         alert(
-                            "Unable to create session."
+                            "Unable to initialize session."
                         );
+
+
+                        createButton.textContent =
+                            "[ INITIALIZE SESSION ]";
 
                     } finally {
 
                         createButton.disabled =
                             false;
 
-                        createButton.textContent =
-                            "Create Location Session";
                     }
+
                 }
             );
+
         </script>
 
     </body>
@@ -609,6 +863,7 @@ def get_location(session_id):
 
 
 initialize_database()
+
 
 if __name__ == "__main__":
     app.run(debug=True)
