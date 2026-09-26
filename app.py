@@ -1,47 +1,45 @@
+import os
 import secrets
-import sqlite3
 from datetime import datetime, timezone
-from pathlib import Path
 
+import psycopg
 from flask import Flask, jsonify, render_template, request
 
 
 app = Flask(__name__)
 
-# Render persistent disk location
-DATABASE = Path("/var/data/tracelink.db")
+DATABASE_URL = os.environ.get("DATABASE_URL")
 
 
 def get_db():
-    DATABASE.parent.mkdir(parents=True, exist_ok=True)
+    if not DATABASE_URL:
+        raise RuntimeError("DATABASE_URL environment variable is not set.")
 
-    connection = sqlite3.connect(DATABASE)
-    connection.row_factory = sqlite3.Row
-
-    return connection
+    return psycopg.connect(DATABASE_URL)
 
 
 def initialize_database():
     connection = get_db()
 
-    connection.execute("""
-        CREATE TABLE IF NOT EXISTS sessions (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            session_id TEXT UNIQUE NOT NULL,
-            created_at TEXT NOT NULL
-        )
-    """)
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS sessions (
+                id SERIAL PRIMARY KEY,
+                session_id TEXT UNIQUE NOT NULL,
+                created_at TIMESTAMPTZ NOT NULL
+            )
+        """)
 
-    connection.execute("""
-        CREATE TABLE IF NOT EXISTS locations (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            session_id TEXT NOT NULL,
-            latitude REAL NOT NULL,
-            longitude REAL NOT NULL,
-            accuracy REAL,
-            created_at TEXT NOT NULL
-        )
-    """)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS locations (
+                id SERIAL PRIMARY KEY,
+                session_id TEXT NOT NULL,
+                latitude DOUBLE PRECISION NOT NULL,
+                longitude DOUBLE PRECISION NOT NULL,
+                accuracy DOUBLE PRECISION,
+                created_at TIMESTAMPTZ NOT NULL
+            )
+        """)
 
     connection.commit()
     connection.close()
@@ -50,10 +48,17 @@ def initialize_database():
 def session_exists(session_id):
     connection = get_db()
 
-    session = connection.execute(
-        "SELECT session_id FROM sessions WHERE session_id = ?",
-        (session_id,)
-    ).fetchone()
+    with connection.cursor() as cursor:
+        cursor.execute(
+            """
+            SELECT session_id
+            FROM sessions
+            WHERE session_id = %s
+            """,
+            (session_id,)
+        )
+
+        session = cursor.fetchone()
 
     connection.close()
 
@@ -63,7 +68,7 @@ def session_exists(session_id):
 @app.route("/")
 def home():
     return """
-    <h1>TraceLink</h1>
+    <h1>LiveHook</h1>
     <p>Consent-based live location sharing.</p>
     <p>Use POST /api/sessions to create a tracking session.</p>
     """
@@ -75,16 +80,20 @@ def create_session():
 
     connection = get_db()
 
-    connection.execute(
-        """
-        INSERT INTO sessions (session_id, created_at)
-        VALUES (?, ?)
-        """,
-        (
-            session_id,
-            datetime.now(timezone.utc).isoformat()
+    with connection.cursor() as cursor:
+        cursor.execute(
+            """
+            INSERT INTO sessions (
+                session_id,
+                created_at
+            )
+            VALUES (%s, %s)
+            """,
+            (
+                session_id,
+                datetime.now(timezone.utc)
+            )
         )
-    )
 
     connection.commit()
     connection.close()
@@ -120,7 +129,6 @@ def dashboard_page(session_id):
 
 @app.route("/api/location/<session_id>", methods=["POST"])
 def update_location(session_id):
-
     if not session_exists(session_id):
         return jsonify({
             "error": "Session not found"
@@ -136,7 +144,6 @@ def update_location(session_id):
     try:
         latitude = float(data["latitude"])
         longitude = float(data["longitude"])
-
         accuracy = data.get("accuracy")
 
         if accuracy is not None:
@@ -159,25 +166,26 @@ def update_location(session_id):
 
     connection = get_db()
 
-    connection.execute(
-        """
-        INSERT INTO locations (
-            session_id,
-            latitude,
-            longitude,
-            accuracy,
-            created_at
+    with connection.cursor() as cursor:
+        cursor.execute(
+            """
+            INSERT INTO locations (
+                session_id,
+                latitude,
+                longitude,
+                accuracy,
+                created_at
+            )
+            VALUES (%s, %s, %s, %s, %s)
+            """,
+            (
+                session_id,
+                latitude,
+                longitude,
+                accuracy,
+                datetime.now(timezone.utc)
+            )
         )
-        VALUES (?, ?, ?, ?, ?)
-        """,
-        (
-            session_id,
-            latitude,
-            longitude,
-            accuracy,
-            datetime.now(timezone.utc).isoformat()
-        )
-    )
 
     connection.commit()
     connection.close()
@@ -189,7 +197,6 @@ def update_location(session_id):
 
 @app.route("/api/location/<session_id>", methods=["GET"])
 def get_location(session_id):
-
     if not session_exists(session_id):
         return jsonify({
             "error": "Session not found"
@@ -197,16 +204,23 @@ def get_location(session_id):
 
     connection = get_db()
 
-    location = connection.execute(
-        """
-        SELECT latitude, longitude, accuracy, created_at
-        FROM locations
-        WHERE session_id = ?
-        ORDER BY id DESC
-        LIMIT 1
-        """,
-        (session_id,)
-    ).fetchone()
+    with connection.cursor() as cursor:
+        cursor.execute(
+            """
+            SELECT
+                latitude,
+                longitude,
+                accuracy,
+                created_at
+            FROM locations
+            WHERE session_id = %s
+            ORDER BY id DESC
+            LIMIT 1
+            """,
+            (session_id,)
+        )
+
+        location = cursor.fetchone()
 
     connection.close()
 
@@ -217,13 +231,12 @@ def get_location(session_id):
 
     return jsonify({
         "location": {
-            "latitude": location["latitude"],
-            "longitude": location["longitude"],
-            "accuracy": location["accuracy"],
-            "created_at": location["created_at"]
+            "latitude": location[0],
+            "longitude": location[1],
+            "accuracy": location[2],
+            "created_at": location[3].isoformat()
         }
     })
 
 
-# Initialize database when the application starts
 initialize_database()
