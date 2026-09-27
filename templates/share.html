@@ -1,144 +1,386 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>85Spy Tick — Share</title>
+    <title>Location Sharing</title>
 
-<style>
-* {
-    box-sizing: border-box;
-}
+    <style>
+        * {
+            box-sizing: border-box;
+        }
 
-body {
-    margin: 0;
-    min-height: 100vh;
-    background:
-        radial-gradient(circle at top, #082b20, #020807 45%, #000);
-    color: #00ff9d;
-    font-family: Consolas, monospace;
-    display: flex;
-    justify-content: center;
-    padding: 30px 15px;
-}
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            background: #070a0f;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
 
-.container {
-    width: min(850px, 100%);
-}
+        .container {
+            width: min(560px, 100%);
+        }
 
-.card {
-    background: rgba(0, 10, 7, .92);
-    border: 1px solid rgba(0,255,157,.3);
-    padding: 30px;
-    box-shadow: 0 0 40px rgba(0,255,157,.08);
-}
+        .card {
+            background: #10151c;
+            border: 1px solid #252d37;
+            border-radius: 18px;
+            padding: 28px;
+        }
 
-.brand {
-    letter-spacing: 4px;
-    font-size: 24px;
-    font-weight: bold;
-}
+        .top {
+            text-align: center;
+            margin-bottom: 28px;
+        }
 
-.status {
-    margin-top: 15px;
-    color: #79a99a;
-}
+        .icon {
+            width: 72px;
+            height: 72px;
+            margin: 0 auto 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #18212b;
+            font-size: 30px;
+        }
 
-h1 {
-    font-size: clamp(35px, 7vw, 65px);
-    margin: 35px 0 15px;
-    line-height: .95;
-}
+        h1 {
+            margin: 0;
+            font-size: 27px;
+        }
 
-p {
-    color: #8fa99f;
-    line-height: 1.7;
-}
+        .subtitle {
+            margin-top: 10px;
+            color: #8f9aa7;
+            line-height: 1.5;
+        }
 
-.panel {
-    margin-top: 25px;
-    padding: 20px;
-    border: 1px solid rgba(0,255,157,.2);
-    background: #010604;
-}
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px;
+            border-radius: 10px;
+            background: #0b1016;
+            border: 1px solid #242c35;
+            margin-bottom: 18px;
+        }
 
-button {
-    width: 100%;
-    padding: 15px;
-    background: transparent;
-    color: #00ff9d;
-    border: 1px solid #00ff9d;
-    font-family: inherit;
-    font-weight: bold;
-    cursor: pointer;
-    margin-top: 10px;
-}
+        .status-dot {
+            width: 11px;
+            height: 11px;
+            border-radius: 50%;
+            background: #69737e;
+            flex-shrink: 0;
+        }
 
-button:hover {
-    background: #00ff9d;
-    color: #00140c;
-}
+        .status-dot.live {
+            background: #55e878;
+            box-shadow: 0 0 12px rgba(85, 232, 120, 0.65);
+        }
 
-button:disabled {
-    opacity: .5;
-    cursor: not-allowed;
-}
+        .status-dot.error {
+            background: #ff5f56;
+        }
 
-.statusBox {
-    margin-top: 20px;
-    padding: 15px;
-    border: 1px solid rgba(0,255,157,.2);
-    color: #72ffbf;
-    line-height: 1.7;
-}
+        .status-text {
+            font-weight: bold;
+        }
 
-.session {
-    margin-top: 20px;
-    color: #45695c;
-    font-size: 11px;
-    word-break: break-all;
-}
-</style>
+        .status-detail {
+            margin-left: auto;
+            color: #8f9aa7;
+            font-size: 12px;
+        }
+
+        .start-button {
+            width: 100%;
+            min-height: 56px;
+            border: 0;
+            border-radius: 11px;
+            background: #ffffff;
+            color: #080b10;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.15s ease, opacity 0.15s ease;
+        }
+
+        .start-button:hover {
+            transform: translateY(-1px);
+        }
+
+        .start-button:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+            transform: none;
+        }
+
+        .stop-button {
+            background: #241416;
+            color: #ff8b8b;
+            border: 1px solid #51282c;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .info {
+            padding: 15px;
+            background: #0b1016;
+            border: 1px solid #222a34;
+            border-radius: 10px;
+        }
+
+        .label {
+            color: #7f8995;
+            font-size: 12px;
+            margin-bottom: 7px;
+        }
+
+        .value {
+            font-size: 15px;
+            font-weight: 600;
+            word-break: break-word;
+        }
+
+        .message {
+            margin-top: 18px;
+            padding: 14px;
+            border-radius: 10px;
+            background: #0b1016;
+            border: 1px solid #222a34;
+            color: #aeb7c2;
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        .permission-box {
+            margin-top: 18px;
+            padding: 16px;
+            border-radius: 10px;
+            background: #151b23;
+            border: 1px solid #2a333e;
+        }
+
+        .permission-box strong {
+            display: block;
+            margin-bottom: 7px;
+        }
+
+        .permission-box span {
+            color: #8f9aa7;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 18px;
+            color: #65707c;
+            font-size: 12px;
+        }
+
+        @media (max-width: 520px) {
+
+            body {
+                padding: 14px;
+            }
+
+            .card {
+                padding: 21px;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 23px;
+            }
+        }
+    </style>
 </head>
 
 <body>
 
 <div class="container">
 
-<div class="card">
+    <div class="card">
 
-<div class="brand">85SPY TICK</div>
+        <div class="top">
 
-<div class="status">
-● VOLUNTARY SHARING CHANNEL
-</div>
+            <div class="icon" id="icon">
+                ◎
+            </div>
 
-<h1>SHARE<br>LOCATION</h1>
+            <h1>Location Sharing</h1>
 
-<p>
-Click the button below to share your live location.
-After permission is granted, available device and network
-information will also be collected for this session.
-</p>
+            <div class="subtitle">
+                Start location sharing to allow your current position
+                to be updated while you move.
+            </div>
 
-<div class="panel">
+        </div>
 
-<button id="shareButton" onclick="startSharing()">
-[ START LOCATION SHARING ]
-</button>
+        <div class="status">
 
-<div class="statusBox" id="status">
-Waiting for your action.
-</div>
+            <div
+                class="status-dot"
+                id="statusDot">
+            </div>
 
-<div class="session">
-SESSION: {{ session_id }}
-</div>
+            <div
+                class="status-text"
+                id="statusText">
+                NOT SHARING
+            </div>
 
-</div>
+            <div
+                class="status-detail"
+                id="statusDetail">
+                Waiting
+            </div>
 
-</div>
+        </div>
+
+        <button
+            type="button"
+            class="start-button"
+            id="shareButton">
+
+            START LOCATION SHARING
+
+        </button>
+
+        <div
+            class="permission-box"
+            id="permissionBox">
+
+            <strong>Location permission</strong>
+
+            <span>
+                When you press the button, your browser will ask
+                for permission to share your location.
+                Location updates only begin after permission is granted.
+            </span>
+
+        </div>
+
+        <div class="info-grid">
+
+            <div class="info">
+
+                <div class="label">
+                    LATITUDE
+                </div>
+
+                <div
+                    class="value"
+                    id="latitude">
+                    —
+                </div>
+
+            </div>
+
+            <div class="info">
+
+                <div class="label">
+                    LONGITUDE
+                </div>
+
+                <div
+                    class="value"
+                    id="longitude">
+                    —
+                </div>
+
+            </div>
+
+            <div class="info">
+
+                <div class="label">
+                    ACCURACY
+                </div>
+
+                <div
+                    class="value"
+                    id="accuracy">
+                    —
+                </div>
+
+            </div>
+
+            <div class="info">
+
+                <div class="label">
+                    LAST UPDATE
+                </div>
+
+                <div
+                    class="value"
+                    id="lastUpdate">
+                    —
+                </div>
+
+            </div>
+
+            <div class="info">
+
+                <div class="label">
+                    LOCATION UPDATES
+                </div>
+
+                <div
+                    class="value"
+                    id="updateCount">
+                    0
+                </div>
+
+            </div>
+
+            <div class="info">
+
+                <div class="label">
+                    SHARING TIME
+                </div>
+
+                <div
+                    class="value"
+                    id="sharingTime">
+                    00:00
+                </div>
+
+            </div>
+
+        </div>
+
+        <div
+            class="message"
+            id="message">
+
+            Press the button above to begin.
+
+        </div>
+
+        <div class="footer">
+
+            Session: {{ session_id }}
+
+        </div>
+
+    </div>
 
 </div>
 
@@ -147,305 +389,370 @@ SESSION: {{ session_id }}
 const sessionId = "{{ session_id }}";
 
 let watchId = null;
+let sharing = false;
+let updateCount = 0;
+let startTime = null;
+let timer = null;
 
-function getBrowserName() {
 
-    const userAgent = navigator.userAgent;
+const shareButton =
+    document.getElementById("shareButton");
 
-    if (userAgent.includes("Edg")) {
-        return "Microsoft Edge";
+const statusDot =
+    document.getElementById("statusDot");
+
+const statusText =
+    document.getElementById("statusText");
+
+const statusDetail =
+    document.getElementById("statusDetail");
+
+const message =
+    document.getElementById("message");
+
+const permissionBox =
+    document.getElementById("permissionBox");
+
+
+function setStatus(
+    text,
+    detail,
+    state
+) {
+
+    statusText.textContent = text;
+
+    statusDetail.textContent = detail;
+
+    statusDot.className =
+        "status-dot";
+
+    if (state) {
+        statusDot.classList.add(state);
     }
-
-    if (userAgent.includes("Chrome")) {
-        return "Google Chrome";
-    }
-
-    if (userAgent.includes("Firefox")) {
-        return "Mozilla Firefox";
-    }
-
-    if (userAgent.includes("Safari")) {
-        return "Safari";
-    }
-
-    return "Unknown";
 }
 
-function getOperatingSystem() {
 
-    const platform = navigator.platform;
-    const userAgent = navigator.userAgent;
+function showMessage(text) {
 
-    if (/Android/i.test(userAgent)) {
-        return "Android";
-    }
-
-    if (/iPhone|iPad|iPod/i.test(userAgent)) {
-        return "iOS";
-    }
-
-    if (/Win/i.test(platform)) {
-        return "Windows";
-    }
-
-    if (/Mac/i.test(platform)) {
-        return "macOS";
-    }
-
-    if (/Linux/i.test(platform)) {
-        return "Linux";
-    }
-
-    return "Unknown";
+    message.textContent = text;
 }
 
-function getDeviceType() {
 
-    if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
-        return "Mobile";
+function updateTimer() {
+
+    if (!startTime) {
+        return;
     }
 
-    return "Desktop";
+    const elapsed =
+        Math.floor(
+            (Date.now() - startTime) / 1000
+        );
+
+    const minutes =
+        Math.floor(elapsed / 60);
+
+    const seconds =
+        elapsed % 60;
+
+    document.getElementById(
+        "sharingTime"
+    ).textContent =
+        String(minutes).padStart(2, "0") +
+        ":" +
+        String(seconds).padStart(2, "0");
 }
 
-async function sendDeviceInfo() {
 
-    const connection =
-        navigator.connection ||
-        navigator.mozConnection ||
-        navigator.webkitConnection;
+function startTimer() {
 
-    const deviceInfo = {
+    startTime = Date.now();
 
-        user_agent: navigator.userAgent,
+    updateTimer();
 
-        platform: navigator.platform,
-
-        browser: getBrowserName(),
-
-        operating_system: getOperatingSystem(),
-
-        device_type: getDeviceType(),
-
-        language: navigator.language,
-
-        timezone:
-            Intl.DateTimeFormat().resolvedOptions().timeZone,
-
-        screen_width: screen.width,
-
-        screen_height: screen.height,
-
-        pixel_ratio: window.devicePixelRatio || 1,
-
-        cpu_cores: navigator.hardwareConcurrency || null,
-
-        device_memory: navigator.deviceMemory || null,
-
-        touch_points: navigator.maxTouchPoints || 0,
-
-        online: navigator.onLine,
-
-        mobile: /Mobi|Android|iPhone|iPad/i.test(
-            navigator.userAgent
-        ),
-
-        connection: {
-
-            type: connection?.type || "Unavailable",
-
-            effective_type:
-                connection?.effectiveType || "Unavailable",
-
-            downlink:
-                connection?.downlink || null,
-
-            rtt:
-                connection?.rtt || null,
-
-            save_data:
-                connection?.saveData || false
-
-        }
-
-    };
-
-    const response = await fetch(
-        "/api/device-info/" + sessionId,
-        {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(deviceInfo)
-        }
+    timer = setInterval(
+        updateTimer,
+        1000
     );
+}
 
-    if (!response.ok) {
-        throw new Error("Unable to send device information.");
+
+function stopTimer() {
+
+    if (timer) {
+
+        clearInterval(timer);
+
+        timer = null;
     }
 }
+
+
+async function sendLocation(position) {
+
+    const latitude =
+        position.coords.latitude;
+
+    const longitude =
+        position.coords.longitude;
+
+    const accuracy =
+        position.coords.accuracy;
+
+    document.getElementById(
+        "latitude"
+    ).textContent =
+        latitude.toFixed(8);
+
+    document.getElementById(
+        "longitude"
+    ).textContent =
+        longitude.toFixed(8);
+
+    document.getElementById(
+        "accuracy"
+    ).textContent =
+        accuracy !== null
+            ? accuracy.toFixed(1) + " meters"
+            : "Unavailable";
+
+    document.getElementById(
+        "lastUpdate"
+    ).textContent =
+        new Date().toLocaleTimeString();
+
+    updateCount++;
+
+    document.getElementById(
+        "updateCount"
+    ).textContent =
+        updateCount;
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/location/" +
+                sessionId,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+                    body: JSON.stringify({
+                        latitude: latitude,
+                        longitude: longitude,
+                        accuracy: accuracy
+                    })
+                }
+            );
+
+        if (!response.ok) {
+
+            showMessage(
+                "The location was received by the browser but could not be saved."
+            );
+
+            return;
+        }
+
+        setStatus(
+            "LOCATION LIVE",
+            "Updating",
+            "live"
+        );
+
+        showMessage(
+            "Your location is being updated as new position data becomes available."
+        );
+
+    } catch (error) {
+
+        setStatus(
+            "CONNECTION ERROR",
+            "Retrying",
+            "error"
+        );
+
+        showMessage(
+            "The location could not be sent to the server. Check your internet connection."
+        );
+    }
+}
+
+
+function handleLocationError(error) {
+
+    stopSharing();
+
+    if (error.code === 1) {
+
+        setStatus(
+            "PERMISSION DENIED",
+            "Location blocked",
+            "error"
+        );
+
+        showMessage(
+            "Location permission was denied. Please allow location access in your browser and try again."
+        );
+
+    } else if (error.code === 2) {
+
+        setStatus(
+            "LOCATION UNAVAILABLE",
+            "No position",
+            "error"
+        );
+
+        showMessage(
+            "The device could not determine its current location. Check GPS or network location and try again."
+        );
+
+    } else if (error.code === 3) {
+
+        setStatus(
+            "LOCATION TIMEOUT",
+            "Retry required",
+            "error"
+        );
+
+        showMessage(
+            "The location request timed out. Try starting location sharing again."
+        );
+
+    } else {
+
+        setStatus(
+            "LOCATION ERROR",
+            "Something went wrong",
+            "error"
+        );
+
+        showMessage(
+            "The browser could not provide a location."
+        );
+    }
+}
+
 
 function startSharing() {
 
-    const status = document.getElementById("status");
-    const button = document.getElementById("shareButton");
-
     if (!navigator.geolocation) {
 
-        status.textContent =
-            "This browser does not support location services.";
+        setStatus(
+            "NOT SUPPORTED",
+            "Unavailable",
+            "error"
+        );
+
+        showMessage(
+            "This browser does not support location services."
+        );
 
         return;
     }
 
-    button.disabled = true;
+    if (sharing) {
+        return;
+    }
 
-    status.textContent =
-        "Waiting for location permission...";
+    sharing = true;
 
-    navigator.geolocation.getCurrentPosition(
+    updateCount = 0;
 
-        async function(position) {
+    shareButton.textContent =
+        "STOP LOCATION SHARING";
 
-            const payload = {
-
-                latitude: position.coords.latitude,
-
-                longitude: position.coords.longitude,
-
-                accuracy: position.coords.accuracy
-
-            };
-
-            try {
-
-                const locationResponse = await fetch(
-                    "/api/location/" + sessionId,
-                    {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify(payload)
-                    }
-                );
-
-                if (!locationResponse.ok) {
-                    throw new Error("Location could not be sent.");
-                }
-
-                status.textContent =
-                    "Location received. Collecting device information...";
-
-                await sendDeviceInfo();
-
-                status.textContent =
-                    "Location and device information shared. Keep this page open.";
-
-                startLiveLocation();
-
-            } catch (error) {
-
-                status.textContent =
-                    "Unable to complete sharing.";
-
-                button.disabled = false;
-            }
-
-        },
-
-        function(error) {
-
-            if (error.code === 1) {
-
-                status.textContent =
-                    "Location permission was denied.";
-
-            } else if (error.code === 2) {
-
-                status.textContent =
-                    "Unable to determine your location.";
-
-            } else if (error.code === 3) {
-
-                status.textContent =
-                    "Location request timed out.";
-
-            } else {
-
-                status.textContent =
-                    "Unable to obtain location.";
-
-            }
-
-            button.disabled = false;
-        },
-
-        {
-            enableHighAccuracy: true,
-            maximumAge: 5000,
-            timeout: 10000
-        }
+    shareButton.classList.add(
+        "stop-button"
     );
+
+    permissionBox.style.display =
+        "none";
+
+    setStatus(
+        "REQUESTING LOCATION",
+        "Waiting for permission",
+        ""
+    );
+
+    showMessage(
+        "Allow location access when your browser asks for permission."
+    );
+
+    startTimer();
+
+    watchId =
+        navigator.geolocation.watchPosition(
+            sendLocation,
+            handleLocationError,
+            {
+                enableHighAccuracy: true,
+                maximumAge: 0,
+                timeout: 15000
+            }
+        );
 }
 
-function startLiveLocation() {
+
+function stopSharing() {
+
+    if (!sharing) {
+        return;
+    }
+
+    sharing = false;
 
     if (watchId !== null) {
-        return;
+
+        navigator.geolocation.clearWatch(
+            watchId
+        );
+
+        watchId = null;
     }
 
-    watchId = navigator.geolocation.watchPosition(
+    stopTimer();
 
-        async function(position) {
+    shareButton.textContent =
+        "START LOCATION SHARING";
 
-            const payload = {
+    shareButton.classList.remove(
+        "stop-button"
+    );
 
-                latitude: position.coords.latitude,
+    permissionBox.style.display =
+        "block";
 
-                longitude: position.coords.longitude,
+    setStatus(
+        "NOT SHARING",
+        "Stopped",
+        ""
+    );
 
-                accuracy: position.coords.accuracy
-
-            };
-
-            try {
-
-                await fetch(
-                    "/api/location/" + sessionId,
-                    {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify(payload)
-                    }
-                );
-
-            } catch (error) {
-
-                document.getElementById("status").textContent =
-                    "Location sharing connection interrupted.";
-
-            }
-
-        },
-
-        function() {
-
-            document.getElementById("status").textContent =
-                "Live location sharing stopped.";
-
-        },
-
-        {
-            enableHighAccuracy: true,
-            maximumAge: 5000,
-            timeout: 10000
-        }
+    showMessage(
+        "Location sharing has been stopped."
     );
 }
+
+
+shareButton.addEventListener(
+    "click",
+    function() {
+
+        if (sharing) {
+
+            stopSharing();
+
+        } else {
+
+            startSharing();
+        }
+    }
+);
 
 </script>
 
