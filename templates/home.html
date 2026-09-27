@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>85Spy Tick</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    background:
+        radial-gradient(circle at top, #082b20, #020807 45%, #000);
+    color: #00ff9d;
+    font-family: Consolas, monospace;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.container {
+    width: min(800px, 100%);
+}
+
+.card {
+    background: rgba(0, 10, 7, .94);
+    border: 1px solid rgba(0,255,157,.3);
+    padding: 35px;
+    box-shadow: 0 0 40px rgba(0,255,157,.08);
+}
+
+.brand {
+    letter-spacing: 4px;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.status {
+    margin-top: 15px;
+    color: #79a99a;
+}
+
+h1 {
+    font-size: clamp(40px, 8vw, 75px);
+    margin: 35px 0 20px;
+    line-height: .9;
+}
+
+p {
+    color: #8fa99f;
+    line-height: 1.7;
+}
+
+.panel {
+    margin-top: 30px;
+    padding: 20px;
+    border: 1px solid rgba(0,255,157,.2);
+    background: #010604;
+}
+
+.field {
+    margin-bottom: 20px;
+}
+
+.label {
+    display: block;
+    color: #638f80;
+    margin-bottom: 8px;
+}
+
+.linkBox {
+    display: flex;
+    gap: 10px;
+}
+
+input {
+    flex: 1;
+    min-width: 0;
+    padding: 14px;
+    background: #020807;
+    border: 1px solid rgba(0,255,157,.3);
+    color: #b5ffe3;
+    font-family: inherit;
+    font-size: 14px;
+}
+
+button {
+    padding: 14px 18px;
+    background: transparent;
+    color: #00ff9d;
+    border: 1px solid #00ff9d;
+    font-family: inherit;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #00ff9d;
+    color: #00140c;
+}
+
+.primary {
+    width: 100%;
+    margin-top: 10px;
+}
+
+.dashboardButton {
+    display: block;
+    text-align: center;
+    text-decoration: none;
+    padding: 16px;
+    margin-top: 20px;
+    border: 1px solid #00ff9d;
+    color: #00ff9d;
+}
+
+.dashboardButton:hover {
+    background: #00ff9d;
+    color: #00140c;
+}
+
+.statusBox {
+    margin-top: 20px;
+    padding: 15px;
+    border: 1px solid rgba(0,255,157,.2);
+    color: #72ffbf;
+    line-height: 1.6;
+}
+
+.hidden {
+    display: none;
+}
+
+.session {
+    margin-top: 20px;
+    color: #45695c;
+    font-size: 11px;
+    word-break: break-all;
+}
+
+@media (max-width: 650px) {
+    .linkBox {
+        flex-direction: column;
+    }
+
+    button {
+        width: 100%;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="card">
+
+<div class="brand">
+85SPY TICK
+</div>
+
+<div class="status">
+● SESSION CONTROL
+</div>
+
+<h1>
+CREATE<br>
+SESSION
+</h1>
+
+<p>
+Create a sharing session, send the generated share link
+to the person, and keep the dashboard link to monitor
+information that they voluntarily share.
+</p>
+
+<div class="panel">
+
+<button
+    id="createButton"
+    class="primary"
+    onclick="createSession()">
+    [ CREATE NEW SESSION ]
+</button>
+
+<div
+    id="result"
+    class="hidden">
+
+    <div class="field">
+
+        <span class="label">
+            SHARE LINK — SEND THIS TO THE PERSON
+        </span>
+
+        <div class="linkBox">
+
+            <input
+                id="shareLink"
+                type="text"
+                readonly>
+
+            <button onclick="copyShareLink()">
+                COPY
+            </button>
+
+        </div>
+
+    </div>
+
+    <div class="field">
+
+        <span class="label">
+            DASHBOARD LINK — KEEP THIS FOR YOURSELF
+        </span>
+
+        <div class="linkBox">
+
+            <input
+                id="dashboardLink"
+                type="text"
+                readonly>
+
+            <button onclick="openDashboard()">
+                OPEN
+            </button>
+
+        </div>
+
+    </div>
+
+    <a
+        id="dashboardButton"
+        class="dashboardButton"
+        href="#"
+        target="_blank">
+        [ OPEN LIVE DASHBOARD ]
+    </a>
+
+</div>
+
+<div
+    class="statusBox"
+    id="status">
+    No session created.
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+let dashboardUrl = "";
+
+async function createSession() {
+
+    const button =
+        document.getElementById("createButton");
+
+    const status =
+        document.getElementById("status");
+
+    button.disabled = true;
+
+    status.textContent =
+        "Creating session...";
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/sessions",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                }
+            );
+
+        const result =
+            await response.json();
+
+        if (!response.ok || !result.success) {
+
+            throw new Error(
+                result.error ||
+                "Unable to create session."
+            );
+        }
+
+        document.getElementById("shareLink").value =
+            result.share_url;
+
+        document.getElementById("dashboardLink").value =
+            result.dashboard_url;
+
+        dashboardUrl =
+            result.dashboard_url;
+
+        document.getElementById(
+            "dashboardButton"
+        ).href =
+            result.dashboard_url;
+
+        document.getElementById(
+            "result"
+        ).classList.remove("hidden");
+
+        status.textContent =
+            "Session created. Send the share link to the person.";
+
+    } catch (error) {
+
+        status.textContent =
+            error.message ||
+            "Unable to create session.";
+
+        button.disabled = false;
+    }
+}
+
+async function copyShareLink() {
+
+    const input =
+        document.getElementById("shareLink");
+
+    try {
+
+        await navigator.clipboard.writeText(
+            input.value
+        );
+
+        document.getElementById("status").textContent =
+            "Share link copied.";
+
+    } catch {
+
+        input.select();
+
+        document.execCommand("copy");
+
+        document.getElementById("status").textContent =
+            "Share link copied.";
+    }
+}
+
+function openDashboard() {
+
+    if (dashboardUrl) {
+
+        window.open(
+            dashboardUrl,
+            "_blank"
+        );
+    }
+}
+
+</script>
+
+</body>
+</html>
